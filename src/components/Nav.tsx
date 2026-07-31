@@ -21,7 +21,7 @@ export function Nav() {
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-3 py-3 sm:px-4">
         <Link href="/" className="group flex shrink-0 items-center gap-2">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-cash text-ink font-black">
-            €
+            $
           </span>
           <span className="font-black tracking-tight text-white">
             Cash<span className="text-cash">From</span>Chaos

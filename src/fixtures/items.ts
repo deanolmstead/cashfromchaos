@@ -32,7 +32,7 @@ export const DEMO_INTAKES: DemoSeed[] = [
     },
     // A buyer lowballs, gets countered — shows negotiation on first load.
     seedMessages: [
-      { buyerName: "Marco (buyer)", text: "Would you take €50 for the binder?", offer: 50, agoMs: 1000 * 60 * 20 },
+      { buyerName: "Marco (buyer)", text: "Would you take $50 for the binder?", offer: 50, agoMs: 1000 * 60 * 20 },
     ],
   },
   {

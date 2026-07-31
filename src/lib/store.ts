@@ -5,7 +5,7 @@
 // Supabase can back this later behind the same functions.
 // ============================================================================
 
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 import { getOperator } from "@/lib/operator";
 import { FixtureBrain } from "@/lib/operator/fixtureBrain";
 import type {
@@ -79,9 +79,9 @@ export async function createItemFromIntake(
     item,
     "operator",
     `Analyzed: ${analysis.title}`,
-    `${analysis.category} · confidence ${analysis.confidence} · est ${eur(
+    `${analysis.category} · confidence ${analysis.confidence} · est ${usd(
       analysis.estimatedMarketLow
-    )}–${eur(analysis.estimatedMarketHigh)}`,
+    )}–${usd(analysis.estimatedMarketHigh)}`,
     "decision"
   );
   if (analysis.missingInfo.length) {
@@ -104,9 +104,9 @@ export async function createItemFromIntake(
     item,
     "operator",
     `Policy set`,
-    `target ${eur(policy.targetPrice)} · floor ${eur(policy.floorPrice)} · auto-counter to ${eur(
+    `target ${usd(policy.targetPrice)} · floor ${usd(policy.floorPrice)} · auto-counter to ${usd(
       policy.autoCounterDownTo
-    )} · human approval below ${eur(policy.requireHumanBelow)}`,
+    )} · human approval below ${usd(policy.requireHumanBelow)}`,
     "decision"
   );
   trace(item, "system", `Listing live on ${plan.primary.name}`, listings[0]?.title);
@@ -146,7 +146,7 @@ export async function negotiate(
     item,
     "buyer",
     `${msg.buyerName}: ${msg.text}`,
-    msg.offer !== undefined ? `offer ${eur(msg.offer)}` : undefined
+    msg.offer !== undefined ? `offer ${usd(msg.offer)}` : undefined
   );
   if (item.status === "listed") setStatus(item, "buyer-engaged");
 
@@ -167,7 +167,7 @@ export async function negotiate(
       amount: reply.agreedPrice,
     };
     setStatus(item, "offer-accepted");
-    trace(item, "operator", `Deal agreed at ${eur(reply.agreedPrice)}`, "Awaiting Stripe payment", "money");
+    trace(item, "operator", `Deal agreed at ${usd(reply.agreedPrice)}`, "Awaiting Stripe payment", "money");
   }
   saveItem(item);
   return reply;

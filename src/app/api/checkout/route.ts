@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureSeeded, getItem, saveItem, trace } from "@/lib/store";
 import { createCheckout } from "@/lib/payments";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export async function POST(req: NextRequest) {
     item,
     "stripe",
     `Checkout created (${session.provider})`,
-    `${eur(item.payment.amount)} held pending delivery`,
+    `${usd(item.payment.amount)} held pending delivery`,
     "money"
   );
   saveItem(item);

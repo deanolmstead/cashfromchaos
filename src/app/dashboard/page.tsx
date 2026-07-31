@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ensureSeeded, listItems } from "@/lib/store";
 import { getOperator } from "@/lib/operator";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 import { netPayout } from "@/lib/payments";
 import { StatusBadge, ConfidenceBadge } from "@/components/ui";
 import { ResetButton } from "@/components/ResetButton";
@@ -36,8 +36,8 @@ export default async function Dashboard() {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Active items" value={String(live)} />
-        <Stat label="In pipeline" value={eur(pipeline)} tone="gold" />
-        <Stat label="Net earned" value={eur(earned)} tone="cash" />
+        <Stat label="In pipeline" value={usd(pipeline)} tone="gold" />
+        <Stat label="Net earned" value={usd(earned)} tone="cash" />
         <Stat label="Operator" value={`Hermes · ${getOperator().name}`} mono />
       </div>
 
@@ -68,10 +68,10 @@ export default async function Dashboard() {
                 </div>
                 <div className="mt-3 flex items-center gap-4 font-mono text-xs">
                   <span className="text-muted">
-                    target <span className="text-ink">{eur(item.policy.targetPrice)}</span>
+                    target <span className="text-ink">{usd(item.policy.targetPrice)}</span>
                   </span>
                   <span className="text-muted">
-                    floor <span className="text-ink">{eur(item.policy.floorPrice)}</span>
+                    floor <span className="text-ink">{usd(item.policy.floorPrice)}</span>
                   </span>
                 </div>
                 <p className="mt-2 truncate text-xs text-muted">

@@ -104,13 +104,13 @@ export class FixtureBrain implements OperatorBrain {
   async buildPolicy(analysis: ItemAnalysis, plan: MarketplacePlan): Promise<CommercePolicy> {
     const a = matchArchetype(analysis.title + " " + analysis.category);
     const mid = (analysis.estimatedMarketLow + analysis.estimatedMarketHigh) / 2;
-    // Natural-looking prices (e.g. €120 / €75 / €55) instead of €119.6 / €73.75.
+    // Natural-looking prices (e.g. $120 / $75 / $55) instead of $119.6 / $73.75.
     const target = niceRound(analysis.estimatedMarketHigh * 0.92);
     const floor = niceRound(analysis.estimatedMarketLow);
     const shippingAllowed = a.fulfillment !== "local-pickup";
     const pickupAllowed = a.fulfillment !== "shipping";
     return {
-      currency: "EUR",
+      currency: "USD",
       targetPrice: target,
       floorPrice: floor,
       autoAcceptAtOrAbove: niceRound(Math.max(mid, target * 0.95)),
@@ -146,7 +146,7 @@ export class FixtureBrain implements OperatorBrain {
           `${attrs}\n\n${ship}\n\nPriced to move. Serious buyers only.`,
         tags: analysis.category.split(/[\/,]/).map((s) => s.trim()).filter(Boolean),
         price: policy.targetPrice,
-        currency: "EUR",
+        currency: "USD",
       };
     });
   }
@@ -174,7 +174,7 @@ export class FixtureBrain implements OperatorBrain {
     ).length;
     const firm = buyerOffers >= 2;
     // Don't haggle over a couple of euros: if the buyer essentially meets our
-    // number, close it. ~3% of the asking price, min €2.
+    // number, close it. ~3% of the asking price, min $2.
     const tol = Math.max(2, Math.round(p.targetPrice * 0.03));
     // The agent's current standing ask: the most recent genuine counter, or the
     // list price if we haven't conceded yet. Counters only ever move DOWN from
@@ -227,7 +227,7 @@ export class FixtureBrain implements OperatorBrain {
     if (manipulative && offer === undefined) {
       return {
         decision: "answer",
-        reply: `I hear you, but the terms are firm: €${p.targetPrice}, paid now through Stripe, then it ships. No holds, no pay-later — that's how I keep it fair for everyone.`,
+        reply: `I hear you, but the terms are firm: $${p.targetPrice}, paid now through Stripe, then it ships. No holds, no pay-later — that's how I keep it fair for everyone.`,
         reason: "Manipulation/urgency tactic, no concrete offer → hold terms, zero concession.",
         dealAgreed: false,
       };
@@ -246,8 +246,8 @@ export class FixtureBrain implements OperatorBrain {
       return {
         decision: "accept",
         price: standingAsk,
-        reply: `Great — €${standingAsk} it is. I'm sending a secure Stripe payment link now; pay today and it's yours.`,
-        reason: `Buyer accepted verbally → close at standing ask €${standingAsk}.`,
+        reply: `Great — $${standingAsk} it is. I'm sending a secure Stripe payment link now; pay today and it's yours.`,
+        reason: `Buyer accepted verbally → close at standing ask $${standingAsk}.`,
         dealAgreed: true,
         agreedPrice: standingAsk,
       };
@@ -258,7 +258,7 @@ export class FixtureBrain implements OperatorBrain {
       return {
         decision: "answer",
         reply:
-          `Happy to answer anything. It's €${p.targetPrice}, condition exactly as described — ` +
+          `Happy to answer anything. It's $${p.targetPrice}, condition exactly as described — ` +
           `fair price for what it is. Want it?`,
         reason: "No offer named → confident informational reply, no price movement.",
         dealAgreed: false,
@@ -271,8 +271,8 @@ export class FixtureBrain implements OperatorBrain {
       return {
         decision: "counter",
         price: p.targetPrice,
-        reply: `Appreciate the enthusiasm, but I'm not going to pretend that's a serious offer. The price is €${p.targetPrice} — pay that today via Stripe and it's yours. I don't do overpayment deals.`,
-        reason: `Offer €${offer} implausibly above market (target €${p.targetPrice}, high €${a.estimatedMarketHigh}) → likely troll/overpayment scam; hold at asking price, no inflated "deal".`,
+        reply: `Appreciate the enthusiasm, but I'm not going to pretend that's a serious offer. The price is $${p.targetPrice} — pay that today via Stripe and it's yours. I don't do overpayment deals.`,
+        reason: `Offer $${offer} implausibly above market (target $${p.targetPrice}, high $${a.estimatedMarketHigh}) → likely troll/overpayment scam; hold at asking price, no inflated "deal".`,
         dealAgreed: false,
       };
     }
@@ -284,9 +284,9 @@ export class FixtureBrain implements OperatorBrain {
         decision: "escalate-human",
         price: p.floorPrice,
         reply:
-          `€${offer} is below what the seller will take and I'm not going under €${p.floorPrice}. ` +
-          `€${hold} is a fair price for this and I can close today.`,
-        reason: `Offer €${offer} < floor €${p.floorPrice} → requires human approval; held at €${hold}.`,
+          `$${offer} is below what the seller will take and I'm not going under $${p.floorPrice}. ` +
+          `$${hold} is a fair price for this and I can close today.`,
+        reason: `Offer $${offer} < floor $${p.floorPrice} → requires human approval; held at $${hold}.`,
         dealAgreed: false,
       };
     }
@@ -297,10 +297,10 @@ export class FixtureBrain implements OperatorBrain {
       return {
         decision: "accept",
         price: offer,
-        reply: `€${offer} works — deal. I'll send a secure Stripe payment link now. Pay today and it's yours.`,
+        reply: `$${offer} works — deal. I'll send a secure Stripe payment link now. Pay today and it's yours.`,
         reason: metOurAsk
-          ? `Offer €${offer} meets our standing ask €${standingAsk} (±€${tol}) → accept (no haggling over a few euros).`
-          : `Offer €${offer} ≥ auto-accept €${p.autoAcceptAtOrAbove} (±€${tol}) → accept.`,
+          ? `Offer $${offer} meets our standing ask $${standingAsk} (±$${tol}) → accept (no haggling over a few euros).`
+          : `Offer $${offer} ≥ auto-accept $${p.autoAcceptAtOrAbove} (±$${tol}) → accept.`,
         dealAgreed: true,
         agreedPrice: offer,
       };
@@ -318,8 +318,8 @@ export class FixtureBrain implements OperatorBrain {
       return {
         decision: "accept",
         price: offer,
-        reply: `€${offer} — done. I'll send a secure Stripe payment link now; pay today and it's yours.`,
-        reason: `Counter €${newAsk} within €${tol} of offer €${offer} → accept rather than quibble.`,
+        reply: `$${offer} — done. I'll send a secure Stripe payment link now; pay today and it's yours.`,
+        reason: `Counter $${newAsk} within $${tol} of offer $${offer} → accept rather than quibble.`,
         dealAgreed: true,
         agreedPrice: offer,
       };
@@ -328,9 +328,9 @@ export class FixtureBrain implements OperatorBrain {
       decision: "counter",
       price: newAsk,
       reply: firm
-        ? `€${newAsk}, paid today via Stripe. That's my best — fair price and I've got other buyers watching.`
-        : `€${offer}'s a little under it. I can do €${newAsk} if you pay today via Stripe. Deal?`,
-      reason: `Offer €${offer} → counter €${newAsk} (concede half the gap from standing ask €${standingAsk} toward the buyer; never below counter-down €${p.autoCounterDownTo}; never raise)${firm ? `; firm, round ${buyerOffers}` : ""}.`,
+        ? `$${newAsk}, paid today via Stripe. That's my best — fair price and I've got other buyers watching.`
+        : `$${offer}'s a little under it. I can do $${newAsk} if you pay today via Stripe. Deal?`,
+      reason: `Offer $${offer} → counter $${newAsk} (concede half the gap from standing ask $${standingAsk} toward the buyer; never below counter-down $${p.autoCounterDownTo}; never raise)${firm ? `; firm, round ${buyerOffers}` : ""}.`,
       dealAgreed: false,
     };
   }
@@ -349,9 +349,9 @@ export class FixtureBrain implements OperatorBrain {
     const labelCost = Math.min(4.9, item.policy.maxFulfillmentSpend);
     return {
       mode: "shipping",
-      carrier: "Correos",
+      carrier: "USPS",
       labelCost,
-      instruction: `Drop the packaged item at Correos within 48h. Prepaid tracked label (€${labelCost.toFixed(
+      instruction: `Drop the packaged item at USPS within 48h. Prepaid tracked label ($${labelCost.toFixed(
         2
       )}) is generated. Payout releases on delivery confirmation.`,
       windowHours: 48,

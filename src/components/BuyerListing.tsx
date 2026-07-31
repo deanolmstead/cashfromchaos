@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import type { AgentReply, Item } from "@/lib/types";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 
 interface ChatLine {
   who: "buyer" | "hermes";
@@ -77,7 +77,7 @@ export function BuyerListing({ initial, paid }: { initial: Item; paid: boolean }
           <div className="p-5">
             <div className="flex items-center justify-between gap-2">
               <h1 className="text-2xl font-black">{item.analysis.title}</h1>
-              <span className="font-mono text-xl text-cash">{eur(item.policy.targetPrice)}</span>
+              <span className="font-mono text-xl text-cash">{usd(item.policy.targetPrice)}</span>
             </div>
             <p className="mt-1 text-sm text-muted">{item.analysis.category}</p>
           </div>
@@ -113,7 +113,7 @@ export function BuyerListing({ initial, paid }: { initial: Item; paid: boolean }
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
             {chat.length === 0 && (
               <p className="text-center text-xs text-muted">
-                Ask a question or make an offer. Try “Would you take €50?”
+                Ask a question or make an offer. Try “Would you take $50?”
               </p>
             )}
             {chat.map((l, i) => (
@@ -136,7 +136,7 @@ export function BuyerListing({ initial, paid }: { initial: Item; paid: boolean }
 
           {isPaid ? (
             <div className="border-t border-edge p-4 text-center">
-              <div className="text-sm font-semibold text-cash">✓ Paid · {eur(item.payment.amount)} held</div>
+              <div className="text-sm font-semibold text-cash">✓ Paid · {usd(item.payment.amount)} held</div>
               <p className="mt-1 text-xs text-muted">
                 Funds released on delivery. Track it on the{" "}
                 <Link href={`/item/${item.id}`} className="text-cash">operation page</Link>.
@@ -145,16 +145,16 @@ export function BuyerListing({ initial, paid }: { initial: Item; paid: boolean }
           ) : dealPrice ? (
             <div className="space-y-2 border-t border-edge p-4">
               <div className="text-center text-sm">
-                Deal agreed at <span className="font-mono text-cash">{eur(dealPrice)}</span>
+                Deal agreed at <span className="font-mono text-cash">{usd(dealPrice)}</span>
               </div>
               <button onClick={pay} disabled={busy} className="btn-cash w-full">
-                Pay {eur(dealPrice)} with Stripe →
+                Pay {usd(dealPrice)} with Stripe →
               </button>
             </div>
           ) : (
             <div className="border-t border-edge p-4">
               <div className="mb-2 flex flex-wrap gap-1.5">
-                {["Would you take €50?", "Does it work?", "Can you ship it?"].map((q) => (
+                {["Would you take $50?", "Does it work?", "Can you ship it?"].map((q) => (
                   <button key={q} onClick={() => send(q)} className="chip cursor-pointer hover:border-cash/50">
                     {q}
                   </button>

@@ -96,14 +96,14 @@ export interface ListingDraft {
   body: string;
   tags: string[];
   price: number;
-  currency: "EUR";
+  currency: "USD";
 }
 
 // ---------------------------------------------------------------------------
 // Policy — the visible safety / autonomy layer
 // ---------------------------------------------------------------------------
 export interface CommercePolicy {
-  currency: "EUR";
+  currency: "USD";
   targetPrice: number;
   floorPrice: number;
   autoAcceptAtOrAbove: number;

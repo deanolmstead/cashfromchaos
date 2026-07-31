@@ -1,7 +1,7 @@
 // ============================================================================
 // Marketplace registry — adapters as interfaces with mock implementations.
 // The operator is marketplace-agnostic; it routes by item, not by default.
-// Real adapters (Wallapop/eBay/Cardmarket) can be added behind this interface
+// Real adapters (Facebook Marketplace/OfferUp/eBay) can be added behind this interface
 // later without touching the UI or the operator brain.
 // ============================================================================
 
@@ -58,50 +58,72 @@ export const ADAPTERS: Record<string, MarketplaceAdapter> = {
     blurb: "Internal demo marketplace where the fake buyer browses and pays.",
     strengths: ["", "general", "electronics", "music", "collectibles", "furniture", "kids"],
   }),
-  "collector-forum-mock": mockAdapter({
-    id: "collector-forum-mock",
-    name: "Cardmarket-style Collector Channel",
+  "facebook-marketplace-mock": mockAdapter({
+    id: "facebook-marketplace-mock",
+    name: "Facebook Marketplace · Local (mock)",
+    kind: "local",
+    feePct: 0,
+    shippingFriendly: false,
+    blurb:
+      "The primary channel: huge local buyer pool, zero fees on local pickup, fast turnover for almost every category.",
+    strengths: [
+      "general", "electronics", "music", "collectibles", "furniture",
+      "home", "kids", "bulky", "appliance",
+    ],
+  }),
+  "offerup-mock": mockAdapter({
+    id: "offerup-mock",
+    name: "OfferUp (mock)",
+    kind: "local",
+    feePct: 0,
+    shippingFriendly: false,
+    blurb: "Local-first mobile marketplace; strong second local channel after Facebook.",
+    strengths: ["electronics", "general", "kids", "home", "furniture"],
+  }),
+  "craigslist-mock": mockAdapter({
+    id: "craigslist-mock",
+    name: "Craigslist (mock)",
+    kind: "local",
+    feePct: 0,
+    shippingFriendly: false,
+    blurb: "Classic local classifieds; still strong for furniture, appliances and bulky items.",
+    strengths: ["furniture", "home", "bulky", "appliance"],
+  }),
+  "tcgplayer-mock": mockAdapter({
+    id: "tcgplayer-mock",
+    name: "TCGplayer-style Collector Channel (mock)",
     kind: "collector",
-    feePct: 5,
+    feePct: 10,
     shippingFriendly: true,
-    blurb: "Specialist collector demand for trading cards & collectibles.",
+    blurb: "Specialist collector demand for trading cards; better prices than local generalists.",
     strengths: ["collectibles", "trading cards", "pokemon", "tcg", "cards"],
   }),
   "reverb-mock": mockAdapter({
     id: "reverb-mock",
-    name: "Reverb-style Music Gear Channel",
+    name: "Reverb (mock)",
     kind: "shipping",
     feePct: 5,
     shippingFriendly: true,
     blurb: "Buyers specifically hunting instruments & music electronics.",
     strengths: ["music", "instrument", "guitar", "pedal", "audio", "electronics"],
   }),
-  "wallapop-mock": mockAdapter({
-    id: "wallapop-mock",
-    name: "Wallapop-style Generalist (mock)",
-    kind: "generalist",
-    feePct: 0,
+  "mercari-mock": mockAdapter({
+    id: "mercari-mock",
+    name: "Mercari (mock)",
+    kind: "shipping",
+    feePct: 10,
     shippingFriendly: true,
-    blurb: "Broad local + shipping marketplace. Good generalist fallback.",
-    strengths: ["electronics", "general", "music", "kids", "home"],
+    blurb: "Easy shipping-first generalist; good for small items worth mailing.",
+    strengths: ["electronics", "general", "kids", "collectibles", "home"],
   }),
   "ebay-mock": mockAdapter({
     id: "ebay-mock",
-    name: "eBay-style Global (mock)",
+    name: "eBay (mock)",
     kind: "shipping",
-    feePct: 11,
+    feePct: 13,
     shippingFriendly: true,
-    blurb: "Global reach fallback for rare or niche items.",
+    blurb: "National/global reach fallback for rare or niche items.",
     strengths: ["electronics", "collectibles", "music", "rare"],
-  }),
-  "local-pickup-mock": mockAdapter({
-    id: "local-pickup-mock",
-    name: "Local Pickup Channel (mock)",
-    kind: "local",
-    feePct: 0,
-    shippingFriendly: false,
-    blurb: "Bulky items, local pickup only. No stupid shipping spend.",
-    strengths: ["furniture", "home", "bulky", "appliance"],
   }),
 };
 

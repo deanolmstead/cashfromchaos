@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ensureSeeded, listItems } from "@/lib/store";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ export default async function MarketList() {
             <div className="p-4">
               <div className="flex items-center justify-between">
                 <h3 className="truncate font-bold">{item.analysis.title}</h3>
-                <span className="font-mono text-cash">{eur(item.policy.targetPrice)}</span>
+                <span className="font-mono text-cash">{usd(item.policy.targetPrice)}</span>
               </div>
               <p className="mt-0.5 truncate text-xs text-muted">{item.analysis.category}</p>
               <p className="mt-2 line-clamp-2 text-xs text-muted">{item.listings[0]?.body}</p>

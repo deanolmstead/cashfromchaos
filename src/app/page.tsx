@@ -91,7 +91,7 @@ export default function Home() {
           <div className="label">It’s opinionated</div>
           <p className="mt-1 text-sm text-muted">
             It decides, it doesn’t list five options. “Don’t ship this chair. Local pickup only. List
-            at €35, accept €25+, ignore buyers asking for shipping.”
+            at $35, accept $25+, ignore buyers asking for shipping.”
           </p>
         </div>
         <div>

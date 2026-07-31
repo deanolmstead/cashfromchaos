@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureSeeded, getItem, saveItem, setStatus, trace } from "@/lib/store";
 import { netPayout } from "@/lib/payments";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
     const net = netPayout(item);
     item.ledger.push({ label: "Payout released to seller", amount: 0, kind: "payout" });
     setStatus(item, "payout-released");
-    trace(item, "stripe", "Funds released to seller", `net ${eur(net)}`, "money");
-    trace(item, "system", "Transaction complete", `Net earned ${eur(net)}`, "money");
+    trace(item, "stripe", "Funds released to seller", `net ${usd(net)}`, "money");
+    trace(item, "system", "Transaction complete", `Net earned ${usd(net)}`, "money");
   } else {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }

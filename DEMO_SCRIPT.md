@@ -30,8 +30,8 @@ trace (not raw chain-of-thought): category, confidence, market estimate,
 routing reason, and the policy:
 
 ```
-target ≈ €138 · floor ≈ €82 · auto-counter to ≈ €110 · human approval below floor
-fulfillment: tracked shipping · max spend €8
+target ≈ $138 · floor ≈ $82 · auto-counter to ≈ $110 · human approval below floor
+fulfillment: tracked shipping · max spend $8
 ```
 
 ## Scene 4 — Marketplace routing (15s)
@@ -42,9 +42,9 @@ the Pokémon binder routes to a **collector channel** with a bundle strategy.
 ## Scene 5 — Buyer persona (25s)
 Switch to the buyer (David + fake moustache 🥸). Open **/market → the pedal**.
 Chat with Hermes:
-- *“Would you take €50?”* → Hermes escalates / counters (below floor).
-- *“How about €110?”* → counters toward target.
-- *“Fine, €135 today.”* → **accept**, deal agreed.
+- *“Would you take $50?”* → Hermes escalates / counters (below floor).
+- *“How about $110?”* → counters toward target.
+- *“Fine, $135 today.”* → **accept**, deal agreed.
 
 Each reply shows the decision + reason, bounded by policy. (Bonus: on the
 chair, ask *“Can you ship it?”* → Hermes refuses, local pickup only.)
@@ -54,9 +54,9 @@ Click **Pay with Stripe**. Funds land as **held pending delivery**. Back on the
 operation page → **Payment** + **Fulfillment**:
 
 ```
-Buyer paid: €135 · status: held
-Shipping label generated (€4.90)
-Drop at Correos within 48h · expected payout €130.10
+Buyer paid: $135 · status: held
+Shipping label generated ($4.90)
+Drop at USPS within 48h · expected payout $130.10
 ```
 
 ## Scene 7 — Fulfillment & completion (15s)

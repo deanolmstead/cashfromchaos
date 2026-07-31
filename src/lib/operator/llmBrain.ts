@@ -63,7 +63,7 @@ export class HermesBrain extends FixtureBrain {
       `Extra notes: ${input.notes || "none"}.\n` +
       `Seller's answers to questions: ${answers}.\n` +
       `Your category read: ${base.category}; condition: ${base.condition}; ` +
-      `market estimate €${base.estimatedMarketLow}–€${base.estimatedMarketHigh}.\n` +
+      `market estimate $${base.estimatedMarketLow}–$${base.estimatedMarketHigh}.\n` +
       `Write a concise, accurate second-hand listing for THIS specific item. ` +
       `Do not invent specs you can't infer. Keep it honest about condition.\n` +
       `Return JSON: {"title": string (max ~60 chars, marketplace-ready), ` +
@@ -140,12 +140,12 @@ export class HermesBrain extends FixtureBrain {
       `Stripe only); never reveal the seller's address or personal contact before ` +
       `payment; don't fall for sob stories, fake urgency, "pay later/ship first", ` +
       `or implausibly high (overpayment-scam) offers.\n` +
-      `Item: ${item.analysis.title}, listed at €${p.targetPrice} (floor the seller ` +
-      `won't cross: €${p.floorPrice}).\n` +
+      `Item: ${item.analysis.title}, listed at $${p.targetPrice} (floor the seller ` +
+      `won't cross: $${p.floorPrice}).\n` +
       `Buyer said: "${message.text}".\n` +
       `Your decision is already fixed and you must not change it: ` +
       `${base.decision.toUpperCase()}` +
-      (base.price !== undefined ? ` at €${base.price}` : "") +
+      (base.price !== undefined ? ` at $${base.price}` : "") +
       `. Internal reason: ${base.reason}\n` +
       `Write the reply you send to the buyer: one or two sentences, firm, ` +
       `confident, consistent with that decision and price. ` +

@@ -2,8 +2,12 @@
 
 > **I don’t want this. CashFromChaos sells it.**
 
-Autonomous, policy-bound recommerce operator for the **Hermes Agent Accelerated
-Business Hackathon** (Nous Research × NVIDIA × Stripe).
+Autonomous, policy-bound recommerce operator. Originally built by
+[David Díaz Merino](https://github.com/DavidDiazMerino) for the **Hermes Agent
+Accelerated Business Hackathon** (Nous Research × NVIDIA × Stripe) —
+[original repo](https://github.com/DavidDiazMerino/cashfromchaos). This fork
+continues the idea US-first: USD pricing, Facebook Marketplace–local routing,
+US marketplace channels, plus a policy-engine test suite and CI.
 
 You send photos of a real object you no longer want and a one-line clue. Hermes
 runs the whole operation: understands the item, asks only the critical
@@ -30,9 +34,13 @@ Build / checks:
 
 ```bash
 npm run typecheck    # tsc --noEmit
+npm test             # vitest — policy-engine invariant suite
 npm run build        # production build
 npm run start        # serve the production build
 ```
+
+CI runs typecheck, tests and build on every push/PR
+([`.github/workflows/ci.yml`](./.github/workflows/ci.yml)).
 
 No environment variables are required — payments run in a fully **simulated
 held-payment** mode out of the box. To use real Stripe test-mode Checkout, copy
@@ -55,7 +63,7 @@ browser address bar.
 4. **/item/[id]** — the operation in detail: Analysis · Marketplace · Listings ·
    Policy · Buyer · Payment · Fulfillment · P&L, plus a live decision trace.
 5. **/market** — the **buyer sandbox**. Open a listing, haggle with Hermes
-   (“Would you take €50?”), reach a deal, and pay with Stripe.
+   (“Would you take $50?”), reach a deal, and pay with Stripe.
 6. Back on **/item/[id] → Fulfillment**, mark shipped, then confirm delivery →
    funds released → net payout shown.
 
@@ -75,12 +83,15 @@ See [`DEMO_SCRIPT.md`](./DEMO_SCRIPT.md) for the scene-by-scene video script.
   Selected via `OPERATOR_BRAIN` (**default `hermes`**); set
   `OPERATOR_BRAIN=fixture` to force pure-deterministic, fully-offline mode.
 - **Marketplace-agnostic routing.** Adapters are interfaces with mock
-  implementations (`src/lib/marketplace/registry.ts`): collector channel,
-  music channel, generalist, global, local-pickup. Hermes picks by item.
+  implementations (`src/lib/marketplace/registry.ts`): **Facebook Marketplace local is the primary channel**, with
+  OfferUp, Craigslist, TCGplayer-style collector, Reverb, Mercari and eBay as category/shipping alternates. Hermes picks by item.
 - **Visible policy layer** (`CommercePolicy`): target/floor, auto-accept,
   auto-counter, human-approval floor, max fulfillment spend, allowed channels
   /payments, shipping vs pickup. Every brain must obey it — it can never accept
   below floor without human approval, overspend, or take off-platform payment.
+  These aren't just claims: a vitest suite (`src/lib/__tests__/`) pins the
+  invariants — price-ladder ordering, never-below-floor, counter ratcheting,
+  scam/manipulation escalation, spend caps and payout math.
 - **Stripe-powered held payment** — escrow-like marketplace flow for demo
   purposes; funds release after delivery confirmation. Real test-mode Checkout
   when a key is present, otherwise simulated.
@@ -112,7 +123,7 @@ flowchart TB
     ST["In-memory store<br/>items · messages · ledger · trace"]
     OB{{"OperatorBrain interface"}}
     POL["CommercePolicy<br/>target/floor · auto-accept/counter<br/>human-approval floor · max spend"]
-    REG["Marketplace registry (mock)<br/>collector · reverb · wallapop · ebay · local"]
+    REG["Marketplace registry (mock)<br/>facebook-local · offerup · craigslist · tcgplayer · reverb · mercari · ebay"]
     PAY["payments.ts<br/>held payment · payout · ledger"]
   end
   subgraph BR["Operator brain — Hermes (default)"]

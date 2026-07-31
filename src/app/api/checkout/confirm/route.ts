@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureSeeded, getItem, saveItem, setStatus, trace } from "@/lib/store";
 import { getOperator } from "@/lib/operator";
 import { buildLedger } from "@/lib/payments";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   if (item.payment.status !== "released") {
     // Mark payment held in custody.
     item.payment.status = "held";
-    trace(item, "stripe", "Payment received — held in custody", eur(item.payment.amount), "money");
+    trace(item, "stripe", "Payment received — held in custody", usd(item.payment.amount), "money");
     setStatus(item, "paid");
 
     // Operator decides fulfillment, then we build the ledger.

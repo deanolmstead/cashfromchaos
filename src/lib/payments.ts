@@ -54,7 +54,7 @@ export async function createCheckout(
       {
         quantity: 1,
         price_data: {
-          currency: "eur",
+          currency: "usd",
           unit_amount: Math.round(amount * 100),
           product_data: {
             name: item.analysis.title,

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { Item } from "@/lib/types";
-import { eur } from "@/lib/money";
+import { usd } from "@/lib/money";
 import { StatusBadge, ConfidenceBadge, TraceList, Section } from "@/components/ui";
 import { Timeline } from "@/components/Timeline";
 
@@ -161,7 +161,7 @@ function AnalysisTab({ item }: { item: Item }) {
           {Object.entries(a.detectedAttributes).map(([k, v]) => (
             <KV key={k} k={k} v={v} />
           ))}
-          <KV k="Market estimate" v={`${eur(a.estimatedMarketLow)} – ${eur(a.estimatedMarketHigh)}`} />
+          <KV k="Market estimate" v={`${usd(a.estimatedMarketLow)} – ${usd(a.estimatedMarketHigh)}`} />
         </div>
         {a.flags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-2">
@@ -249,7 +249,7 @@ function ListingsTab({ item }: { item: Item }) {
   return (
     <div className="space-y-4">
       {item.listings.map((l) => (
-        <Section key={l.channelId} title={l.channelId} right={<span className="font-mono text-cash">{eur(l.price)}</span>}>
+        <Section key={l.channelId} title={l.channelId} right={<span className="font-mono text-cash">{usd(l.price)}</span>}>
           <p className="font-semibold">{l.title}</p>
           <p className="mt-1 whitespace-pre-line text-sm text-muted">{l.body}</p>
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -268,12 +268,12 @@ function PolicyTab({ item }: { item: Item }) {
   return (
     <Section title="Safety / autonomy policy (the boundary every brain obeys)">
       <div className="grid gap-x-8 sm:grid-cols-2">
-        <KV k="Target price" v={eur(p.targetPrice)} />
-        <KV k="Floor price" v={eur(p.floorPrice)} />
-        <KV k="Auto-accept at/above" v={eur(p.autoAcceptAtOrAbove)} />
-        <KV k="Auto-counter down to" v={eur(p.autoCounterDownTo)} />
-        <KV k="Human approval below" v={eur(p.requireHumanBelow)} />
-        <KV k="Max fulfillment spend" v={eur(p.maxFulfillmentSpend)} />
+        <KV k="Target price" v={usd(p.targetPrice)} />
+        <KV k="Floor price" v={usd(p.floorPrice)} />
+        <KV k="Auto-accept at/above" v={usd(p.autoAcceptAtOrAbove)} />
+        <KV k="Auto-counter down to" v={usd(p.autoCounterDownTo)} />
+        <KV k="Human approval below" v={usd(p.requireHumanBelow)} />
+        <KV k="Max fulfillment spend" v={usd(p.maxFulfillmentSpend)} />
         <KV k="Shipping allowed" v={p.shippingAllowed ? "yes" : "no"} />
         <KV k="Pickup allowed" v={p.pickupAllowed ? "yes" : "no"} />
         <KV k="Payment methods" v={p.allowedPaymentMethods.join(", ")} />
@@ -331,7 +331,7 @@ function PaymentTab({ item }: { item: Item }) {
       <div className="grid gap-x-8 sm:grid-cols-2">
         <KV k="Provider" v={pay.provider} />
         <KV k="Status" v={pay.status} />
-        <KV k="Agreed amount" v={pay.amount ? eur(pay.amount) : "—"} />
+        <KV k="Agreed amount" v={pay.amount ? usd(pay.amount) : "—"} />
       </div>
       <p className="mt-3 text-xs text-muted">
         Escrow-like marketplace flow for demo purposes: funds are held after checkout and released
@@ -362,7 +362,7 @@ function FulfillmentTab({ item, onChange }: { item: Item; onChange: () => void }
       <div className="grid gap-x-8 sm:grid-cols-2">
         <KV k="Mode" v={f.mode} />
         {f.carrier && <KV k="Carrier" v={f.carrier} />}
-        <KV k="Label cost" v={eur(f.labelCost)} />
+        <KV k="Label cost" v={usd(f.labelCost)} />
         <KV k="Window" v={`${f.windowHours}h`} />
       </div>
       <p className="mt-2 text-sm text-ink">{f.instruction}</p>
@@ -404,13 +404,13 @@ function PnLTab({ item }: { item: Item }) {
               <span className="text-muted">{e.label}</span>
               <span className={`font-mono ${e.amount < 0 ? "text-chaos" : "text-ink"}`}>
                 {e.amount < 0 ? "−" : ""}
-                {eur(Math.abs(e.amount))}
+                {usd(Math.abs(e.amount))}
               </span>
             </div>
           ))}
         <div className="flex justify-between pt-2 text-base font-bold">
           <span>Net to seller</span>
-          <span className="font-mono text-cash">{eur(total)}</span>
+          <span className="font-mono text-cash">{usd(total)}</span>
         </div>
       </div>
       {item.payment.status === "released" && (

@@ -51,16 +51,16 @@ export const ARCHETYPES: Archetype[] = [
     },
     rationale: [
       "Detected a trading-card binder — value is driven by a few rare cards, not the bulk.",
-      "Local generalist marketplaces underprice collectibles; collector channels pay more.",
+      "Facebook local moves bundles fast with zero fees; collector channels pay a premium for confirmed rare singles.",
       "Recommend bundle listing unless close-ups reveal high-value singles to split out.",
     ],
     flags: ["authenticity-sensitive", "value-in-tail"],
     marketLow: 65,
     marketHigh: 110,
-    channels: ["collector-forum-mock", "ebay-mock", "cashfromchaos-sandbox"],
+    channels: ["facebook-marketplace-mock", "tcgplayer-mock", "ebay-mock"],
     bundleRecommended: true,
     strategy: [
-      "Avoid local generalist first — collectors pay a premium.",
+      "Lead with Facebook Marketplace local — fast, fee-free; route rare singles to the collector channel.",
       "List as a bundle; pull rare holos into singles only if confirmed valuable.",
       "Tracked shipping — small, light, high theft/scam appeal.",
     ],
@@ -102,7 +102,7 @@ export const ARCHETYPES: Archetype[] = [
     flags: ["condition-sensitive"],
     marketLow: 70,
     marketHigh: 120,
-    channels: ["reverb-mock", "wallapop-mock", "ebay-mock"],
+    channels: ["facebook-marketplace-mock", "reverb-mock", "ebay-mock"],
     bundleRecommended: false,
     strategy: [
       "Lead on specialist music channel; generalist as fallback.",
@@ -151,7 +151,7 @@ export const ARCHETYPES: Archetype[] = [
     flags: ["condition-sensitive", "data-wipe-recommended"],
     marketLow: 55,
     marketHigh: 130,
-    channels: ["wallapop-mock", "ebay-mock", "cashfromchaos-sandbox"],
+    channels: ["facebook-marketplace-mock", "offerup-mock", "ebay-mock"],
     bundleRecommended: false,
     strategy: [
       "Generalist marketplace first; global channel as fallback for premium/rare models.",
@@ -203,7 +203,7 @@ export const ARCHETYPES: Archetype[] = [
     flags: ["bulky", "local-only"],
     marketLow: 25,
     marketHigh: 55,
-    channels: ["local-pickup-mock", "wallapop-mock"],
+    channels: ["facebook-marketplace-mock", "craigslist-mock"],
     bundleRecommended: false,
     strategy: [
       "Local pickup ONLY — do not ship, do not spend on logistics.",
@@ -242,7 +242,7 @@ export const ARCHETYPES: Archetype[] = [
     flags: ["hygiene-sensitive"],
     marketLow: 30,
     marketHigh: 70,
-    channels: ["wallapop-mock", "local-pickup-mock"],
+    channels: ["facebook-marketplace-mock", "offerup-mock"],
     bundleRecommended: false,
     strategy: [
       "Lead local/parent channels; pickup preferred.",
@@ -282,10 +282,10 @@ export const GENERIC_ARCHETYPE: Archetype = {
   flags: [],
   marketLow: 20,
   marketHigh: 60,
-  channels: ["wallapop-mock", "ebay-mock", "cashfromchaos-sandbox"],
+  channels: ["facebook-marketplace-mock", "mercari-mock", "ebay-mock"],
   bundleRecommended: false,
   strategy: [
-    "Generalist marketplace first; eBay-style fallback if demand is thin or item is rare.",
+    "Facebook Marketplace local first; eBay fallback if demand is thin or the item is rare.",
     "Tracked shipping for anything small and valuable.",
   ],
   fulfillment: "either",
