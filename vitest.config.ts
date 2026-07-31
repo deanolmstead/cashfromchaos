@@ -13,6 +13,10 @@ export default defineConfig({
   test: {
     include: ["src/**/*.test.ts"],
     environment: "node",
+    // better-sqlite3 is a native module; vitest's default worker THREADS can
+    // crash loading it ("Worker exited unexpectedly", seen on Linux CI).
+    // Child-process forks are the supported pool for native addons.
+    pool: "forks",
     env: {
       CFC_DATA_DIR: testDataDir,
       OPERATOR_BRAIN: "fixture",
