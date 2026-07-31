@@ -5,16 +5,28 @@
 // Reset demo) to start clean. Kept out of git via .gitignore (data/).
 // ============================================================================
 
-import Database from "better-sqlite3";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
+import type BetterSqlite3 from "better-sqlite3";
 import type { Item } from "@/lib/types";
 
-const g = globalThis as unknown as { __cfc_db?: Database.Database | null };
+const g = globalThis as unknown as { __cfc_db?: BetterSqlite3.Database | null };
 
-function open(): Database.Database | null {
+function open(): BetterSqlite3.Database | null {
   if (g.__cfc_db !== undefined) return g.__cfc_db;
+  // Kill switch (CFC_DB=off): run purely in-memory. Used by the test suite so
+  // the native module never loads in a test process (it segfaults under some
+  // CI runners), and handy for ephemeral deploys.
+  if ((process.env.CFC_DB ?? "").toLowerCase() === "off") {
+    g.__cfc_db = null;
+    return null;
+  }
   try {
+    // Lazy-require so the native addon is never loaded when the switch is off.
+    const Database = createRequire(import.meta.url)(
+      "better-sqlite3"
+    ) as typeof BetterSqlite3;
     const dir = process.env.CFC_DATA_DIR ?? path.join(process.cwd(), "data");
     fs.mkdirSync(dir, { recursive: true });
     const db = new Database(path.join(dir, "cashfromchaos.db"));

@@ -18,6 +18,7 @@ export default defineConfig({
     // Child-process forks are the supported pool for native addons.
     pool: "forks",
     env: {
+      CFC_DB: "off", // keep the native sqlite addon out of test processes
       CFC_DATA_DIR: testDataDir,
       OPERATOR_BRAIN: "fixture",
       NOTIFY: "off",
