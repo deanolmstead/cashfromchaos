@@ -32,6 +32,7 @@ import type {
   MarketplacePlan,
 } from "@/lib/types";
 import { FixtureBrain } from "@/lib/operator/fixtureBrain";
+import { visionAnalyze } from "@/lib/operator/claudeVision";
 import { runHermes, runHermesJson } from "@/lib/operator/hermesCli";
 
 /**
@@ -53,6 +54,14 @@ export class HermesBrain extends FixtureBrain {
    * to the deterministic title and no description (the fixture body is used).
    */
   async analyzeItem(input: ItemIntake): Promise<ItemAnalysis> {
+    // Real photo (camera data URI) + Anthropic credentials → Claude vision
+    // reads the actual item: identity, condition, market band, critical
+    // questions. The band feeds the same deterministic CommercePolicy, so
+    // vision informs pricing but can never breach policy. Any failure → the
+    // archetype path below, unchanged.
+    const seen = await visionAnalyze(input);
+    if (seen) return seen;
+
     const base = await super.analyzeItem(input);
     const answers = input.answers
       ? Object.entries(input.answers).map(([k, v]) => `${k}: ${v}`).join("; ")

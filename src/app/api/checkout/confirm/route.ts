@@ -3,6 +3,7 @@ import { ensureSeeded, getItem, saveItem, setStatus, trace } from "@/lib/store";
 import { getOperator } from "@/lib/operator";
 import { buildLedger } from "@/lib/payments";
 import { usd } from "@/lib/money";
+import { notify } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,12 @@ export async function GET(req: NextRequest) {
     );
     setStatus(item, fulfillment.mode === "shipping" ? "shipping-required" : "shipping-required");
     saveItem(item);
+    notify(
+      "💵 Payment held",
+      `${usd(item.payment.amount)} for ${item.analysis.title} — ${
+        fulfillment.mode === "shipping" ? "ship it to release payout" : "arrange pickup"
+      }`
+    );
   }
 
   return NextResponse.redirect(new URL(`/market/${itemId}?paid=1`, req.url));

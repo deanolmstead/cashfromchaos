@@ -19,6 +19,58 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number];
 
+/**
+ * Below-floor offer parked by the operator. The one decision the autonomous
+ * system won't make on its own — the seller approves or declines here.
+ */
+function ApprovalBanner({ item, onResolved }: { item: Item; onResolved: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const pending = item.pendingOffer;
+  if (item.status !== "escalated" || !pending) return null;
+
+  async function resolve(approve: boolean) {
+    setBusy(true);
+    await fetch("/api/approve", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ itemId: item.id, approve }),
+    });
+    setBusy(false);
+    onResolved();
+  }
+
+  return (
+    <div className="panel border-chaos/40 bg-chaos/5 p-5">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="text-sm font-bold text-chaos">Needs your call</p>
+          <p className="mt-1 text-sm">
+            <span className="font-semibold">{pending.buyerName}</span> offered{" "}
+            <span className="font-mono font-bold">{usd(pending.offer)}</span> — below your{" "}
+            {usd(item.policy.floorPrice)} floor. The operator is holding the line until you decide.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <button
+            disabled={busy}
+            onClick={() => resolve(true)}
+            className="btn-cash disabled:opacity-40"
+          >
+            Accept {usd(pending.offer)}
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => resolve(false)}
+            className="btn-ghost disabled:opacity-40"
+          >
+            Decline — hold at {usd(item.policy.floorPrice)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ItemDetail({ initial }: { initial: Item }) {
   const [item, setItem] = useState<Item>(initial);
   const [tab, setTab] = useState<Tab>("Analysis");
@@ -61,6 +113,8 @@ export function ItemDetail({ initial }: { initial: Item }) {
       </div>
 
       <Timeline status={item.status} />
+
+      <ApprovalBanner item={item} onResolved={refresh} />
 
       {/* Mobile (<lg): a scrollable operation dossier — no tab strip to fight
           on a phone. The live trace is part of the narrative, not a sidebar. */}

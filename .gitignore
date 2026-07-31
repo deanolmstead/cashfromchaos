@@ -16,3 +16,6 @@ item.json
 # The generator script (scripts/) is tracked; its rendered output is not.
 docs/
 ARCHITECTURE_DECISION.md
+
+# SQLite persistence (local data, not for git)
+data/

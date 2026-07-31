@@ -196,11 +196,35 @@ stateDiagram-v2
 4. **Fulfil** — `POST /api/fulfillment` ship → deliver → payout released, ledger
    and net P&L finalised.
 
+## Beyond the demo: the real-world hooks
+
+This fork adds the pieces that turn the demo into a usable personal tool:
+
+- **SQLite persistence** — items survive server restarts (`data/cashfromchaos.db`,
+  write-through, zero config; `↺ Reset demo` clears it). Best-effort: the app
+  still runs purely in-memory if the file can't be opened.
+- **Claude vision intake** — with `ANTHROPIC_API_KEY` set, a real camera photo
+  is analyzed by Claude (identity, condition, USD market band, critical
+  questions). The band feeds the same deterministic `CommercePolicy`, so vision
+  informs pricing but can never breach policy. No key → archetype path,
+  unchanged.
+- **Human approval** — below-floor offers park the item in `escalated` with an
+  approve/decline banner on the item page (`/api/approve`). Explicit seller
+  approval is the *only* path that closes a deal under the floor.
+- **Notifications** — native macOS pings on buyer engagement, escalations,
+  deals, payments and payouts (`NOTIFY=off` to silence).
+- **Real eBay adapter (sandbox)** — with `EBAY_*` credentials configured,
+  `POST /api/ebay/publish` lists an item via the Sell Inventory API, and
+  `POST /api/ebay/poll` pulls Best Offers and routes them through the same
+  policy engine (accept / counter / decline / escalate). See `.env.example`
+  for the setup steps.
+
 ## Not in this MVP (by design)
 
-Real marketplace automation, legal escrow, multi-user auth, whole-room
-inventory scanning. The differentiator is **policy-bound autonomous commerce
-over messy physical inventory**, demoed as a reliable, cinematic loop.
+Facebook Marketplace automation (no official listing API — the FB-local
+channel stays a routing target, not an integration), legal escrow, multi-user
+auth, whole-room inventory scanning. The differentiator is **policy-bound
+autonomous commerce over messy physical inventory**.
 
 ## Image credits
 

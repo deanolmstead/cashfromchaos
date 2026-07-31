@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureSeeded, getItem, saveItem, setStatus, trace } from "@/lib/store";
 import { netPayout } from "@/lib/payments";
 import { usd } from "@/lib/money";
+import { notify } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
     setStatus(item, "payout-released");
     trace(item, "stripe", "Funds released to seller", `net ${usd(net)}`, "money");
     trace(item, "system", "Transaction complete", `Net earned ${usd(net)}`, "money");
+    notify("💰 Payout released", `${item.analysis.title} complete — net ${usd(net)}`);
   } else {
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
   }

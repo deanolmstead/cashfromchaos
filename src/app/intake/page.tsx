@@ -29,12 +29,31 @@ export default function IntakePage() {
   function onCapture(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImg(String(reader.result));
+    // Downscale to ≤1280px JPEG before upload — keeps the data URI small for
+    // the API payload and the vision analysis while staying plenty sharp.
+    const url = URL.createObjectURL(file);
+    const photo = new Image();
+    photo.onload = () => {
+      const scale = Math.min(1, 1280 / Math.max(photo.width, photo.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(photo.width * scale);
+      canvas.height = Math.round(photo.height * scale);
+      canvas.getContext("2d")!.drawImage(photo, 0, 0, canvas.width, canvas.height);
+      setImg(canvas.toDataURL("image/jpeg", 0.85));
       setShotTaken(true);
+      URL.revokeObjectURL(url);
     };
-    reader.readAsDataURL(file);
+    photo.onerror = () => {
+      // Fallback: raw data URI (e.g. formats the canvas can't decode)
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImg(String(reader.result));
+        setShotTaken(true);
+      };
+      reader.readAsDataURL(file);
+      URL.revokeObjectURL(url);
+    };
+    photo.src = url;
   }
 
   async function analyze(extraAnswers?: Record<string, string>) {

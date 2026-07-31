@@ -5,7 +5,15 @@
 // Supabase can back this later behind the same functions.
 // ============================================================================
 
+import { dbClear, dbLoadAll, dbUpsert } from "@/lib/db";
 import { usd } from "@/lib/money";
+import { notify } from "@/lib/notify";
+
+// Seeding replays canned buyer history — don't ping the seller about it.
+let seeding = false;
+function ping(title: string, body: string): void {
+  if (!seeding) notify(title, body);
+}
 import { getOperator } from "@/lib/operator";
 import { FixtureBrain } from "@/lib/operator/fixtureBrain";
 import type {
@@ -25,7 +33,14 @@ interface Store {
 
 const g = globalThis as unknown as { __cfc_store?: Store };
 function store(): Store {
-  if (!g.__cfc_store) g.__cfc_store = { items: new Map(), seeded: false };
+  if (!g.__cfc_store) {
+    const items = new Map<string, Item>();
+    // Hydrate from SQLite: items survive server restarts. If the file has any
+    // rows, we consider the store seeded (don't overwrite real data with demo
+    // fixtures).
+    for (const item of dbLoadAll()) items.set(item.id, item);
+    g.__cfc_store = { items, seeded: items.size > 0 };
+  }
   return g.__cfc_store;
 }
 
@@ -111,7 +126,7 @@ export async function createItemFromIntake(
   );
   trace(item, "system", `Listing live on ${plan.primary.name}`, listings[0]?.title);
 
-  store().items.set(item.id, item);
+  saveItem(item);
   return item;
 }
 
@@ -125,6 +140,7 @@ export function listItems(): Item[] {
 
 export function saveItem(item: Item): void {
   store().items.set(item.id, item);
+  dbUpsert(item);
 }
 
 export function setStatus(item: Item, status: TransactionStatus): void {
@@ -148,7 +164,10 @@ export async function negotiate(
     `${msg.buyerName}: ${msg.text}`,
     msg.offer !== undefined ? `offer ${usd(msg.offer)}` : undefined
   );
-  if (item.status === "listed") setStatus(item, "buyer-engaged");
+  if (item.status === "listed") {
+    setStatus(item, "buyer-engaged");
+    ping("💬 Buyer engaged", `${msg.buyerName} is asking about ${item.analysis.title}`);
+  }
 
   const reply = await op.handleBuyerMessage(item, msg);
   item.agentReplies.push(reply);
@@ -168,7 +187,66 @@ export async function negotiate(
     };
     setStatus(item, "offer-accepted");
     trace(item, "operator", `Deal agreed at ${usd(reply.agreedPrice)}`, "Awaiting Stripe payment", "money");
+    ping("🤝 Deal agreed", `${item.analysis.title} at ${usd(reply.agreedPrice)} — awaiting payment`);
+  } else if (reply.decision === "escalate-human" && msg.offer !== undefined) {
+    // Below-floor offer: park it for the seller's explicit decision. Only
+    // pre-deal states escalate — a paid item can't re-enter negotiation.
+    if (item.status === "listed" || item.status === "buyer-engaged" || item.status === "escalated") {
+      item.pendingOffer = { buyerName: msg.buyerName, offer: msg.offer, ts: msg.ts };
+      setStatus(item, "escalated");
+      trace(
+        item,
+        "operator",
+        `Requires your approval: ${usd(msg.offer)} from ${msg.buyerName}`,
+        `Below floor ${usd(item.policy.floorPrice)} — approve or decline on the item page.`,
+        "warn"
+      );
+      ping(
+        "⚠️ Needs your call",
+        `${msg.buyerName} offered ${usd(msg.offer)} for ${item.analysis.title} (floor ${usd(item.policy.floorPrice)})`
+      );
+    }
   }
+  saveItem(item);
+  return reply;
+}
+
+// ---------------------------------------------------------------------------
+// Human approval: the seller resolves a below-floor offer the operator parked.
+// This is the only path that can close a deal under the policy floor.
+// ---------------------------------------------------------------------------
+export function resolveEscalation(item: Item, approve: boolean): AgentReply | null {
+  const pending = item.pendingOffer;
+  if (item.status !== "escalated" || !pending) return null;
+  item.pendingOffer = undefined;
+
+  if (approve) {
+    const reply: AgentReply = {
+      decision: "accept",
+      price: pending.offer,
+      reply: `Good news — the seller signed off on ${usd(pending.offer)}. Deal. I'm sending a secure Stripe payment link now; pay today and it's yours.`,
+      reason: `Seller explicitly approved below-floor offer ${usd(pending.offer)} (floor ${usd(item.policy.floorPrice)}).`,
+      dealAgreed: true,
+      agreedPrice: pending.offer,
+    };
+    item.agentReplies.push(reply);
+    item.payment = { provider: item.payment.provider, status: "none", amount: pending.offer };
+    setStatus(item, "offer-accepted");
+    trace(item, "seller", `Approved ${usd(pending.offer)} from ${pending.buyerName}`, "Below-floor deal closed with explicit approval", "money");
+    saveItem(item);
+    return reply;
+  }
+
+  const reply: AgentReply = {
+    decision: "reject",
+    price: item.policy.floorPrice,
+    reply: `Checked with the seller — ${usd(pending.offer)} doesn't work. ${usd(item.policy.floorPrice)} is the true bottom; happy to close at that today via Stripe.`,
+    reason: `Seller declined below-floor offer ${usd(pending.offer)}; holding at floor ${usd(item.policy.floorPrice)}.`,
+    dealAgreed: false,
+  };
+  item.agentReplies.push(reply);
+  setStatus(item, "buyer-engaged");
+  trace(item, "seller", `Declined ${usd(pending.offer)} from ${pending.buyerName}`, `Operator holds at floor ${usd(item.policy.floorPrice)}`, "decision");
   saveItem(item);
   return reply;
 }
@@ -182,6 +260,7 @@ let seedPromise: Promise<void> | null = null;
 export async function resetDemo(): Promise<void> {
   const s = store();
   s.items.clear();
+  dbClear();
   s.seeded = false;
   seedPromise = null;
   await ensureSeeded();
@@ -198,6 +277,15 @@ export function ensureSeeded(): Promise<void> {
 }
 
 async function seedDemo(): Promise<void> {
+  seeding = true;
+  try {
+    await seedDemoInner();
+  } finally {
+    seeding = false;
+  }
+}
+
+async function seedDemoInner(): Promise<void> {
   const { DEMO_INTAKES } = await import("@/fixtures/items");
   // Pre-canned demo history is always generated by the deterministic fixture
   // brain so seeding (and Reset) stays instant even when OPERATOR_BRAIN=hermes.

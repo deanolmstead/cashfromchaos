@@ -201,6 +201,15 @@ export interface Item {
   payment: Payment;
   fulfillment?: FulfillmentPlan;
   ledger: LedgerEntry[];
+  /**
+   * Below-floor offer awaiting the seller's explicit decision. Set when the
+   * operator escalates; cleared by approve/decline via /api/approve.
+   */
+  pendingOffer?: { buyerName: string; offer: number; ts: number };
+  /** Real marketplace listings published for this item (e.g. eBay sandbox). */
+  externalListings?: { channelId: string; externalId: string; url: string; status: string }[];
+  /** eBay Best Offer IDs already routed through the policy engine. */
+  ebayOffersSeen?: string[];
   /** Append-only operational trace for the dashboard. */
   trace: TraceEvent[];
 }
